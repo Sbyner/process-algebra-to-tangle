@@ -1,0 +1,43 @@
+fmod PA is
+	protecting NAT .
+	sort Action .
+	
+	op A_ : NzNat -> Action [ctor].
+
+	op idx : Action -> NzNat .
+	
+	var n : NzNat .
+
+	eq idx(A n) = n .
+	
+endfm
+
+fmod OPERATIONS is
+	protecting PA .
+	sort Process .
+	subsort Action < Process .
+	
+	op nil : -> Process [ctor] .
+
+	op _._ : Action Action -> Process [assoc ctor] .
+	op _._ : Action Process -> Process [ditto] .
+
+	op _._ : Process Process -> Process [ditto] .
+
+	op _||_ : Process Process -> Process [assoc ctor comm id: nil] . 
+	op length : Process -> Nat [memo] .
+ 
+ 
+	var A : Action .
+	var P P' : Process .
+ 
+	eq length(nil) = 1 .
+	eq length(A) = 1 .
+	eq length(P . P') = length(P) + length(P') .
+ 
+endfm
+
+mod RULES is
+	protecting OPERATIONS .
+	var P P' : Process .
+endm
