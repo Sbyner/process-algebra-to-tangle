@@ -37,7 +37,22 @@ fmod OPERATIONS is
  
 endfm
 
-mod RULES is
+fmod TANGLE is
 	protecting OPERATIONS .
+	sort Tangle .
+	op [_] : Process -> Tangle [ctor] .	
+	op _~_ : Tangle Tangle -> Tangle [assoc ctor id: e] .
+		
+	op e : -> Tangle [ctor] .
+	
+endfm
+
+mod RULES is
+	protecting TANGLE .
+	sort Map .
+	op _=|=_ : Process Tangle -> Map [ctor] .
 	var P P' : Process .
+	var T : Tangle .
+	crl [prefix] : P . P' . nil =|= T => P . nil =|= [P'] ~ T ~ [P'] if length(P') == 1 .
+	crl [prefix] : P . nil =|= T => nil =|= [P] ~ T ~ [P] if length(P) == 1 .
 endm
