@@ -2,7 +2,7 @@ fmod PA is
 	protecting NAT .
 	sort Action .
 	
-	op A_ : NzNat -> Action [ctor].
+	op A_ : NzNat -> Action [prec 1 ctor].
 
 	op idx : Action -> NzNat .
 	
@@ -19,12 +19,12 @@ fmod OPERATIONS is
 	
 	op nil : -> Process [ctor] .
 
-	op _._ : Action Action -> Process [assoc ctor] .
+	op _._ : Action Action -> Process [prec 5 assoc ctor gather (e E)] .
 	op _._ : Action Process -> Process [ditto] .
 
 	op _._ : Process Process -> Process [ditto] .
 
-	op _||_ : Process Process -> Process [assoc ctor comm id: nil] . 
+	op _||_ : Process Process -> Process [prec 10 assoc ctor comm id: nil gather (e E)] .
 	op length : Process -> Nat [memo] .
  
  
@@ -34,6 +34,7 @@ fmod OPERATIONS is
 	eq length(nil) = 1 .
 	eq length(A) = 1 .
 	eq length(P . P') = length(P) + length(P') .
+	eq length(P || P') = length(P) + length(P') .
  
 endfm
 
@@ -51,8 +52,22 @@ mod RULES is
 	protecting TANGLE .
 	sort Map .
 	op _=|=_ : Process Tangle -> Map [ctor] .
-	var P P' : Process .
+	var P P' P'' P''' SP SP' SP'' : Process .
 	var T : Tangle .
-	crl [prefix] : P . P' . nil =|= T => P . nil =|= [P'] ~ T ~ [P'] if length(P') == 1 .
-	crl [prefix] : P . nil =|= T => nil =|= [P] ~ T ~ [P] if length(P) == 1 .
+
+    crl [red-prefix]: P . P' . P'' =|= e => P . P'' =|= e
+        if length(P) == 1 and length(P') == 1 .
+    crl [red-prefix]: P . ( P'' . SP || P''' ) . P' =|= e => P . ( P'' || P''' ) . P' =|= e
+        if length(SP) == 1 .
+    crl [red-prefix]: P . ( P'' || P''' . SP ) . P' =|= e => P . ( P'' || P''' ) . P' =|= e
+        if length(SP) == 1 .
+
+	--- crl [prefix-finish] : P . nil =|= T => nil =|= [P] ~ T ~ [P] if length(P) == 1 .
+	--- crl [par] : P . ( P' || P'' ) . nil =|= T => P . nil =|= [P'] ~ [P'] ~ T ~ [P''] ~ [P'']
+	---    if length(P') == 1 and length(P'') == 1 .
+	--- crl [par] : P . ( ( P' . SP ) || P'' ) . nil =|= T => P . ( ( P' ) || P'' ) . nil =|= [SP] ~ [SP] ~ T
+	---    if length(SP) == 1 .
+
+
+
 endm
