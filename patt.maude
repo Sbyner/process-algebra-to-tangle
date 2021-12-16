@@ -26,17 +26,20 @@ fmod OPERATIONS is
 	op _._ : Process Process -> Process [ditto] .
 
 	op _||_ : Process Process -> Process [prec 10 assoc ctor comm gather (e E)] .
+
+	op _|*|_ : Process Process -> Process [prec 10 assoc ctor comm gather (e E)] .
+
 	op length : Process -> Nat [memo] .
 	op isPrefixesChain : Process -> Bool .
  
  
 	var A : Action .
-	var P P' : Process .
+	var P C : Process .
  
 	eq length(nil) = 1 .
 	eq length(A) = 1 .
-	eq length(P . P') = length(P) + length(P') .
-	eq length(P || P') = length(P) + length(P') .
+	eq length(P . C) = length(P) + length(C) .
+	eq length(P || C) = length(P) + length(C) .
  
 endfm
 
@@ -67,28 +70,47 @@ mod RULES is
 	protecting TANGLE .
 	sort Map .
 	op _=|=_ # _ : Process Tangle Nat -> Map [ctor] .
-	var P P' P'' P''' SP SP' SP'' : Process .
+	var P C B B' SP SP' SP'' : Process .
 	var T T' T'' T''' : Tangle .
 	var N : Nat .
 
-    --- crl [red-prefix]: P . P' . P'' =|= e => P . P'' =|= e
-    ---    if length(P) == 1 and length(P') == 1 .
-    --- crl [red-prefix]: P . ( P'' . SP || P''' ) . P' =|= e => P . ( P'' || P''' ) . P' =|= e
+	op getTangle : Map -> Tangle .
+
+	eq getTangle( nil =|= T # N ) = T .
+
+    --- crl [red-prefix]: P . C . B =|= e => P . B =|= e
+    ---    if length(P) == 1 and length(C) == 1 .
+    --- crl [red-prefix]: P . ( B . SP || B' ) . C =|= e => P . ( B || B' ) . C =|= e
     ---    if length(SP) == 1 .
-    --- crl [red-prefix]: P . ( P'' || P''' . SP ) . P' =|= e => P . ( P'' || P''' ) . P' =|= e
+    --- crl [red-prefix]: P . ( B || B' . SP ) . C =|= e => P . ( B || B' ) . C =|= e
     ---    if length(SP) == 1 .
 
 	crl [prefix-finish] : P . nil =|= T # N => nil =|= [P] ~ T ~ [P] # N
 	    if length(P) == 1 .
-	crl [prefix] : P . P' . nil =|= T # N => P . nil =|= [P'] ~ T ~ [P'] # N
-	    if length(P') == 1 .
-	crl [par] : P . ( P' || P'' ) . nil =|= T # N => P . nil =|= [P'] ~ [P'] ~ T ~ [P''] ~ [P''] # N
-	   if length(P') + 1 == length( P' || P'' ) and length(P'') == 1 and length(T) == 0 .
-	crl [par] : P . ( P' || P'' ) . nil =|= T # N => P . nil =|= [P'] ~ [N] ~ [P'] ~ T ~ [P''] ~ [N] ~ [P''] # N + 1
-	   if length(P') + 1 == length( P' || P'' ) and length(P'') == 1 .
+	crl [prefix] : P . C . nil =|= T # N => P . nil =|= [C] ~ T ~ [C] # N
+	    if length(C) == 1 .
 
-    crl [par] : nil =|= T ~ [P' || P''] ~ T' ~ [P' || P''] ~ T'' # N => nil =|= T ~ [P'] ~ [N] ~ [P'] ~ T' ~ [P''] ~ [N] ~ [P''] ~ T'' # N + 1
-	   if length(P') + 1 == length( P' || P'' ) and length(P'') == 1 .
+	crl [par] : P . ( C || B ) . nil =|= T # N => P . nil =|= [C] ~ [C] ~ T ~ [B] ~ [B] # N
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 and length(T) == 0 .
+	crl [par] : P . ( C || B ) . nil =|= T # N => P . nil =|= [C] ~ [N] ~ [C] ~ T ~ [B] ~ [N] ~ [B] # N + 1
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
 
+	crl [par] : ( C || B ) . nil =|= T # N => nil =|= [C] ~ [C] ~ T ~ [B] ~ [B] # N
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 and length(T) == 0 .
+	crl [par] : ( C || B ) . nil =|= T # N => nil =|= [C] ~ [N] ~ [C] ~ T ~ [B] ~ [N] ~ [B] # N + 1
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
+
+    crl [par] : nil =|= T ~ [C || B] ~ T' ~ [C || B] ~ T'' # N => nil =|= T ~ [C] ~ [N] ~ [C] ~ T' ~ [B] ~ [N] ~ [B] ~ T'' # N + 1
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
+
+
+	crl [syn] : P . ( C |*| B ) . nil =|= T # N => P . nil =|= [C] ~ [B] ~ T ~ [C] ~ [B] # N
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
+
+	crl [syn] : ( C |*| B ) . nil =|= T # N => nil =|= [C] ~ [B] ~ T ~ [C] ~ [B] # N
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
+    
+	crl [syn] : nil =|= T ~ [C |*| B] ~ T' ~ [C |*| B] ~ T'' # N => nil =|= T ~ [C] ~ [B] ~ [N] ~ [C] ~ [B] ~ T' ~ [N] ~ T'' # N + 1
+	   if length(C) + 1 == length( C || B ) and length(B) == 1 .
 
 endm
