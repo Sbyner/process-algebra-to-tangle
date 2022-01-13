@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import maude
 import sys
+import re
+
 
 def init_arg(sasso):
     return f"{sasso} =|= e # 0"
@@ -27,16 +29,11 @@ def convert(sasso):
     toMaude.reduce()
     return str(toMaude)
 
-if __name__ == '__main__':
+def to_tangle(input):
     maude.init()
     maude.load('patt.maude')
-
-
-    if len(sys.argv) <= 1:
-        print("Not enough args")
-        exit(1)
     
-    out: str = convert(init_arg(sys.argv[1]))
+    out: str = convert(init_arg(input))
     arr = [s.strip() for s in out.split('~')]
     # arr = [(i,i2) for i, v in enumerate(arr)]
     outlist = []
@@ -44,5 +41,5 @@ if __name__ == '__main__':
         for k,z in enumerate(arr):
             if v == z and i<k:
                 outlist.append((i+1,k+1))
-                
-    print(','.join([f"{i}:{k}" for i,k in outlist]))
+    res = ','.join([f"{i}:{k}" for i,k in outlist])
+    return res
