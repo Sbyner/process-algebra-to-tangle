@@ -43,6 +43,6 @@ if __name__ == '__main__':
     for i,v in enumerate(arr):
         for k,z in enumerate(arr):
             if v == z and i<k:
-                outlist.append((i,k))
+                outlist.append((i+1,k+1))
                 
     print(','.join([f"{i}:{k}" for i,k in outlist]))
