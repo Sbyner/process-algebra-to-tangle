@@ -7,20 +7,6 @@ import re
 def _init_arg(sasso):
     return f"{sasso} =|= e # 0"
 
-def test_conversion(sasso):
-    pa = maude.getModule("RULES")
-    width = 17
-    print(f"\n{'To convert:':<{width}} {sasso}")
-    toMaude = pa.parseTerm(sasso)
-    toMaude.reduce()
-    print(f"{'Reduce:':<{width}} {toMaude}")
-    toMaude = pa.parseTerm(sasso)
-    toMaude.rewrite()
-    print(f"{'Rewrite:':<{width}} {toMaude}")
-    toMaude = pa.parseTerm(f"getTangle({str(toMaude)})")
-    toMaude.reduce()
-    print(f"{'Rewrite - reduce:':<{width}} {toMaude}")
-
 def _convert(sasso):
     pa = maude.getModule("RULES")
     toMaude = pa.parseTerm(sasso)
