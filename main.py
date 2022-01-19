@@ -43,3 +43,12 @@ def to_tangle(input):
                 outlist.append((i+1,k+1))
     res = ','.join([f"{i}:{k}" for i,k in outlist])
     return res
+
+def main():
+    if len(sys.argv) <= 1:
+        print("Not enough args")
+        exit(1)
+    print(to_tangle(sys.argv[1]))
+
+if __name__ == '__main__':
+    main()
