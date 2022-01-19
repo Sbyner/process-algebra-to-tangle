@@ -4,7 +4,7 @@ import sys
 import re
 
 
-def init_arg(sasso):
+def _init_arg(sasso):
     return f"{sasso} =|= e # 0"
 
 def test_conversion(sasso):
@@ -21,7 +21,7 @@ def test_conversion(sasso):
     toMaude.reduce()
     print(f"{'Rewrite - reduce:':<{width}} {toMaude}")
 
-def convert(sasso):
+def _convert(sasso):
     pa = maude.getModule("RULES")
     toMaude = pa.parseTerm(sasso)
     toMaude.rewrite()
@@ -33,7 +33,7 @@ def to_tangle(input):
     maude.init()
     maude.load('patt.maude')
     
-    out: str = convert(init_arg(input))
+    out: str = _convert(_init_arg(input))
     arr = [s.strip() for s in out.split('~')]
     # arr = [(i,i2) for i, v in enumerate(arr)]
     outlist = []
@@ -44,11 +44,11 @@ def to_tangle(input):
     res = ','.join([f"{i}:{k}" for i,k in outlist])
     return res
 
-def main():
+def _main():
     if len(sys.argv) <= 1:
         print("Not enough args")
         exit(1)
     print(to_tangle(sys.argv[1]))
 
 if __name__ == '__main__':
-    main()
+    _main()
