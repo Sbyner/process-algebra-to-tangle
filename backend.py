@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, request, jsonify
-from main import to_tangle
+from patotangle import to_tangle
 
 app = Flask(__name__)
 
