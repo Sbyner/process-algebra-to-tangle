@@ -32,7 +32,7 @@ def to_tangle(input):
 
 def _main():
     if len(sys.argv) <= 1:
-        print("Not enough args")
+        print("Not enough args", file=sys.stderr)
         exit(1)
     print(to_tangle(sys.argv[1]))
 
